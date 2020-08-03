@@ -1,6 +1,7 @@
 const mysql = require("mysql");
 const inquirer = require("inquirer");
 const columnify = require('columnify');
+let employeeNames = [];
 
 const connection = mysql.createConnection({
     host: "localhost",
@@ -89,4 +90,46 @@ const showAllEmployees = () => {
         console.log(columnify(res));
         console.log("-----------------------------------");
     });
+}
+
+const addEmployee = () => {
+    connection.query("SELECT * FROM employee", function (err, res) {
+        if (err) throw err;
+
+        for (let i = 0; i < res.length; i++) {
+            employeeNames.push(res[i].first_name + " " + res[i].last_name);
+        }
+    })
+
+    inquirer
+        .prompt([{
+            name: "first_name",
+            type: "input",
+            message: "What is the employee's first name?"
+        }, {
+            name: "last_name",
+            type: "input",
+            message: "What is the employee's last name?"
+        }, {
+            name: "role",
+            type: "list",
+            message: "What is the employee's role?",
+            choices: [
+                "Sales Lead",
+                "Salesperson",
+                "Lead Engineer",
+                "Software Engineer",
+                "Account Manager",
+                "Accountant",
+                "Legal Team Lead",
+                "Lawyer"
+            ]
+        }, {
+            name: "manager",
+            type: "list",
+            message: "Who is the employee's manager?",
+            choices: employeeNames
+        }]).then(answer => {
+            console.log(answer);
+        });
 }
