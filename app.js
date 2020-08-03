@@ -21,28 +21,58 @@ appStart = () => {
             type: "list",
             message: "What would you like to do?",
             choices: [
-                "Find songs by artist",
-                "Find all artists who appear more than once",
-                "Find data within a specific range",
-                "Search for a specific song",
+                "View All Employees",
+                "View All Employees By Department",
+                "View All Employees By Manager",
+                "Add Employee",
+                "Remove Employee",
+                "Update Employee Role",
+                "Update Employee Manager",
+                "View All Roles",
+                "Add Role",
+                "Remove Role",
                 "exit"
             ]
         }).then(answer => {
             switch (answer.action) {
-                case "Find songs by artist":
-                    artistSearch();
+                case "View All Employees":
+                    showAllEmployees();
                     break;
 
-                case "Find all artists who appear more than once":
-                    multiSearch();
+                case "View All Employees By Department":
+                    showAllEmployeesByDepartment();
                     break;
 
-                case "Find data within a specific range":
-                    rangeSearch();
+                case "View All Employees By Manager":
+                    showAllEmployeesByManager();
                     break;
 
-                case "Search for a specific song":
-                    songSearch();
+                case "Add Employee":
+                    addEmployee();
+                    break;
+
+                case "Remove Employee":
+                    removeEmployee();
+                    break;
+
+                case "Update Employee Role":
+                    updateEmployeeRole();
+                    break;
+
+                case "Update Employee Manager":
+                    updateEmployeeManager();
+                    break;
+
+                case "View All Roles":
+                    viewAllRoles();
+                    break;
+
+                case "Add Role":
+                    addRole();
+                    break;
+
+                case "Remove Role":
+                    removeRole();
                     break;
 
                 case "exit":
