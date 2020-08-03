@@ -17,6 +17,7 @@
   },
   "homepage": "https://github.com/Mohammad-Pishdar/Employee-Tracker#readme",
   "dependencies": {
+    "columnify": "^1.5.4",
     "inquirer": "^7.3.3",
     "mysql": "^2.18.1"
   }

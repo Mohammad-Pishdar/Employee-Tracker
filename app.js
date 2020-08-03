@@ -1,5 +1,6 @@
 const mysql = require("mysql");
 const inquirer = require("inquirer");
+const columnify = require('columnify');
 
 const connection = mysql.createConnection({
     host: "localhost",
@@ -80,4 +81,12 @@ appStart = () => {
                     break;
             }
         });
+}
+
+const showAllEmployees = () => {
+    connection.query("SELECT * FROM employee", function (err, res) {
+        if (err) throw err;
+        console.log(columnify(res));
+        console.log("-----------------------------------");
+    });
 }
