@@ -99,6 +99,7 @@ const addEmployee = () => {
         for (let i = 0; i < res.length; i++) {
             employeeNames.push(res[i].first_name + " " + res[i].last_name);
         }
+        employeeNames.push("None");
     })
 
     inquirer
