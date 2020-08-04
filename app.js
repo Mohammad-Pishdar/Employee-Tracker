@@ -85,7 +85,7 @@ appStart = () => {
 }
 
 const showAllEmployees = () => {
-    connection.query("SELECT * FROM employee", function (err, res) {
+    connection.query("SELECT employee.id, first_name, last_name, title, department, salary FROM employee INNER JOIN role ON employee.role_id = role.id INNER JOIN department ON role.department_id = department.id", function (err, res) {
         if (err) throw err;
         console.log(columnify(res));
         console.log("-----------------------------------");
