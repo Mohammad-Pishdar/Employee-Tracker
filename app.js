@@ -96,7 +96,20 @@ const showAllEmployees = () => {
                     res[i].manager = res[response[i].manager_id - 1].first_name + " " + res[response[i].manager_id - 1].last_name;
                 }
             }
-            console.log(columnify(res));
+            console.log(columnify(res, {
+                minWidth: 15,
+                config: {
+                    id: {
+                        maxWidth: 3
+                    },
+                    title: {
+                        minWidth: 20
+                    },
+                    salary: {
+                        minWidth: 10
+                    }
+                }
+            }));
             console.log("-----------------------------------");
         })
 
