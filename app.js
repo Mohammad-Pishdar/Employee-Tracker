@@ -85,36 +85,39 @@ appStart = () => {
 }
 
 const showAllEmployees = () => {
-    connection.query("SELECT employee.id, first_name, last_name, title, department, salary FROM employee INNER JOIN role ON employee.role_id = role.id INNER JOIN department ON role.department_id = department.id", function (err, res) {
-        if (err) throw err;
-        connection.query("SELECT * FROM employee", function (error, response) {
-            if (error) throw error;
-            for (let i = 0; i < response.length; i++) {
-                if (response[i].manager_id === null) {
-                    res[i].manager = "NULL"
-                } else {
-                    res[i].manager = res[response[i].manager_id - 1].first_name + " " + res[response[i].manager_id - 1].last_name;
+    connection.query("SELECT employee.id, first_name, last_name, title, department, salary, manager_id FROM employee INNER JOIN role ON employee.role_id = role.id INNER JOIN department ON role.department_id = department.id", function (err, res) {
+        for (let i = 0; i < res.length; i++) {
+            for (let j = 0; j < res.length; j++) {
+                if (res[i].id === res[j].manager_id) {
+                    res[j].manager = res[i].first_name + " " + res[i].last_name;
+                }
+                if (res[j].manager_id === null) {
+                    res[j].manager = "NULL";
                 }
             }
+        }
+        for (let i = 0; i < res.length; i++) {
+            delete res[i].manager_id;
+        }
 
-            console.log("-----------------------------------");
-            console.log(columnify(res, {
-                minWidth: 15,
-                config: {
-                    id: {
-                        maxWidth: 3
-                    },
-                    title: {
-                        minWidth: 20
-                    },
-                    salary: {
-                        minWidth: 10
-                    }
+        console.log("-----------------------------------");
+        console.log(columnify(res, {
+            minWidth: 15,
+            config: {
+                id: {
+                    maxWidth: 3
+                },
+                title: {
+                    minWidth: 20
+                },
+                salary: {
+                    minWidth: 10
                 }
-            }));
-            console.log("-----------------------------------");
-            appStart();
-        })
+            }
+        }));
+        console.log("-----------------------------------");
+        appStart();
+        // })
 
     });
 
@@ -207,8 +210,12 @@ const showAllEmployeesByManager = () => {
 
 };
 
-
-const getEmployeesNames = () => {
+const addEmployee = () => {
+    let title;
+    let salary;
+    let department_id;
+    let manager_id;
+    let role_id;
     connection.query("SELECT * FROM employee", function (err, res) {
         if (err) throw err;
 
@@ -216,19 +223,7 @@ const getEmployeesNames = () => {
             employeeNames.push(res[i].first_name + " " + res[i].last_name);
         }
         employeeNames.push("None");
-    })
-}
-
-const addEmployee = () => {
-    let title;
-    let salary;
-    let department_id;
-    let department;
-    let manager_id;
-    let role_id;
-    getEmployeesNames();
-    inquirer
-        .prompt([{
+        inquirer.prompt([{
             name: "first_name",
             type: "input",
             message: "What is the employee's first name?"
@@ -261,7 +256,6 @@ const addEmployee = () => {
             for (let i = 0; i < employeeNames.length; i++) {
                 if (employeeNames[i] === answer.manager) {
                     manager_id = i + 1;
-                    console.log(manager_id);
                 }
             }
             switch (answer.role) {
@@ -330,26 +324,52 @@ const addEmployee = () => {
                 err => {
                     if (err) throw err;
                     connection.query(
-                        "INSERT INTO department SET ?", {
-                            department: department
+                        "INSERT INTO employee SET ?", {
+                            first_name: answer.first_name,
+                            last_name: answer.last_name,
+                            role_id: role_id,
+                            manager_id: manager_id
                         },
                         err => {
                             if (err) throw err;
-                            connection.query(
-                                "INSERT INTO employee SET ?", {
-                                    first_name: answer.first_name,
-                                    last_name: answer.last_name,
-                                    role_id: role_id,
-                                    manager_id: manager_id
-                                },
-                                err => {
-                                    if (err) throw err;
-                                    appStart();
-                                }
-                            );
+                            appStart();
                         }
                     );
                 }
             );
         })
+    })
+}
+
+const removeEmployee = () => {
+    connection.query("SELECT * FROM employee", function (err, res) {
+        if (err) throw err;
+
+        for (let i = 0; i < res.length; i++) {
+            employeeNames.push(res[i].first_name + " " + res[i].last_name);
+        }
+        employeeNames.push("None");
+        inquirer.prompt({
+            name: "employee",
+            type: "list",
+            message: "Enter the full name of the employee you want to remove",
+            choices: employeeNames
+        }).then(answer => {
+            if (answer.employee === "None") {
+                appStart();
+            } else {
+                for (let i = 0; i < res.length; i++) {
+                    if ((answer.employee).split(" ").shift() === res[i].first_name && (answer.employee).split(" ").pop() === res[i].last_name) {
+                        connection.query(
+                            "DELETE FROM employee WHERE id =" + res[i].id,
+                            function (err, res) {
+                                if (err) throw err;
+                            }
+                        )
+                    }
+                }
+                appStart();
+            }
+        })
+    })
 }
