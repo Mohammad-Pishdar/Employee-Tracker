@@ -119,24 +119,35 @@ const showAllEmployees = () => {
 }
 
 const showAllEmployeesByDepartment = () => {
-    connection.query("select first_name, last_name, department from employee inner join role on employee.role_id = role.id inner join department on role.department_id = department.id ", function (err, res) {
-        if (err) throw err;
-        connection.query("SELECT * FROM employee", function (error, response) {
-            if (error) throw error;
+    inquirer
+        .prompt({
+            name: "department",
+            type: "list",
+            message: "Choose the deoartment you want to see the employees in",
+            choices: [
+                "Sales",
+                "Engineering",
+                "Finance",
+                "Legal"
+            ]
+        }).then(answer => {
+            connection.query("select first_name, last_name, department from employee inner join role on employee.role_id = role.id inner join department on role.department_id = department.id where department = " + "'" + answer.department + "'", function (err, res) {
+                if (err) throw err;
 
-            console.log(columnify(res, {
-                minWidth: 15,
-                config: {
-                    id: {
-                        maxWidth: 3
+                console.log(columnify(res, {
+                    minWidth: 15,
+                    config: {
+                        id: {
+                            maxWidth: 3
+                        }
                     }
-                }
-            }));
-            console.log("-----------------------------------");
-            appStart();
+                }));
+                console.log("-----------------------------------");
+                appStart();
+
+            });
         })
 
-    });
 
 }
 
