@@ -118,6 +118,28 @@ const showAllEmployees = () => {
 
 }
 
+const showAllEmployeesByDepartment = () => {
+    connection.query("select first_name, last_name, department from employee inner join role on employee.role_id = role.id inner join department on role.department_id = department.id ", function (err, res) {
+        if (err) throw err;
+        connection.query("SELECT * FROM employee", function (error, response) {
+            if (error) throw error;
+
+            console.log(columnify(res, {
+                minWidth: 15,
+                config: {
+                    id: {
+                        maxWidth: 3
+                    }
+                }
+            }));
+            console.log("-----------------------------------");
+            appStart();
+        })
+
+    });
+
+}
+
 const getEmployeesNames = () => {
     connection.query("SELECT * FROM employee", function (err, res) {
         if (err) throw err;
