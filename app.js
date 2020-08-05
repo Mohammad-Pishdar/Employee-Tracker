@@ -158,42 +158,55 @@ const showAllEmployeesByManager = () => {
     let managerNames = [];
     let managerIds = [];
     let manager_id;
-    connection.query("SELECT * FROM employee where manager_id is null", function (err, res) {
-        for (let i = 0; i < res.length; i++) {
-            managerNames.push(res[i].first_name + " " + res[i].last_name);
-            managerIds.push(res[i].id);
-        }
-        inquirer
-            .prompt({
-                name: "manager",
-                type: "list",
-                message: "Choose the manager you want to see the employees under",
-                choices: managerNames
-            }).then(answer => {
-                for (let i = 0; i < managerNames.length; i++) {
-                    if (answer.manager === managerNames[i]) {
-                        manager_id = managerIds[i];
-                    }
-                }
-                connection.query("select first_name, last_name from employee where manager_id =" + manager_id, function (err, res) {
-                    if (err) throw err;
+    connection.query("SELECT * FROM employee", function (err, res) {
+        if (err) throw err;
 
-                    console.log("-----------------------------------");
-                    console.log(columnify(res, {
-                        minWidth: 15,
-                        config: {
-                            id: {
-                                maxWidth: 3
-                            }
+        for (let i = 0; i < res.length; i++) {
+            for (let j = 0; j < res.length; j++) {
+                if (res[i].id === res[j].manager_id && res[i].manager_id != null) {
+                    managerNames.push(res[i].first_name + " " + res[i].last_name);
+                    managerIds.push(res[i].id);
+                }
+            }
+        }
+        connection.query("SELECT * FROM employee where manager_id is null", function (err, res) {
+            for (let i = 0; i < res.length; i++) {
+                managerNames.push(res[i].first_name + " " + res[i].last_name);
+                managerIds.push(res[i].id);
+            }
+            inquirer
+                .prompt({
+                    name: "manager",
+                    type: "list",
+                    message: "Choose the manager you want to see the employees under",
+                    choices: managerNames
+                }).then(answer => {
+                    for (let i = 0; i < managerNames.length; i++) {
+                        if (answer.manager === managerNames[i]) {
+                            manager_id = managerIds[i];
                         }
-                    }));
-                    console.log("-----------------------------------");
-                    appStart();
+                    }
+                    connection.query("select first_name, last_name from employee where manager_id =" + manager_id, function (err, res) {
+                        if (err) throw err;
+
+                        console.log("-----------------------------------");
+                        console.log(columnify(res, {
+                            minWidth: 15,
+                            config: {
+                                id: {
+                                    maxWidth: 3
+                                }
+                            }
+                        }));
+                        console.log("-----------------------------------");
+                        appStart();
+                    })
                 })
-            })
+        })
     });
 
-}
+};
+
 
 const getEmployeesNames = () => {
     connection.query("SELECT * FROM employee", function (err, res) {
