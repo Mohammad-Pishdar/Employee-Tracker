@@ -111,12 +111,14 @@ const showAllEmployees = () => {
                 }
             }));
             console.log("-----------------------------------");
+            appStart();
         })
 
     });
+
 }
 
-const addEmployee = () => {
+const getEmployeesNames = () => {
     connection.query("SELECT * FROM employee", function (err, res) {
         if (err) throw err;
 
@@ -125,7 +127,16 @@ const addEmployee = () => {
         }
         employeeNames.push("None");
     })
+}
 
+const addEmployee = () => {
+    let title;
+    let salary;
+    let department_id;
+    let department;
+    let manager_id;
+    let role_id;
+    getEmployeesNames();
     inquirer
         .prompt([{
             name: "first_name",
@@ -155,6 +166,100 @@ const addEmployee = () => {
             message: "Who is the employee's manager?",
             choices: employeeNames
         }]).then(answer => {
-            console.log(answer);
-        });
+            role_id = employeeNames.length++;
+
+            for (let i = 0; i < employeeNames.length; i++) {
+                if (employeeNames[i] === answer.manager) {
+                    manager_id = i + 1;
+                    console.log(manager_id);
+                }
+            }
+            switch (answer.role) {
+                case "Sales Lead":
+                    title = "Sales Lead";
+                    salary = 100000;
+                    department_id = 1;
+                    department = "Sales";
+                    break;
+
+                case "Salesperson":
+                    title = "Salesperson";
+                    salary = 80000;
+                    department_id = 1;
+                    department = "Sales";
+                    break;
+
+                case "Lead Engineer":
+                    title = "Lead Engineer";
+                    salary = 150000;
+                    department_id = 2;
+                    department = "Engineering";
+                    break;
+
+                case "Software Engineer":
+                    title = "Software Engineer";
+                    salary = 120000;
+                    department_id = 2;
+                    department = "Engineering";
+                    break;
+
+                case "Account Manager":
+                    title = "Account Manager";
+                    salary = 140000;
+                    department_id = 3;
+                    department = "Finance";
+                    break;
+
+                case "Accountant":
+                    title = "Accountant";
+                    salary = 125000;
+                    department_id = 3;
+                    department = "Finance";
+                    break;
+
+                case "Legal Team Lead":
+                    title = "Legal Team Lead";
+                    salary = 250000;
+                    department_id = 4;
+                    department = "Legal";
+                    break;
+
+                case "Lawyer":
+                    title = "Lawyer";
+                    salary = 190000;
+                    department_id = 4;
+                    department = "Legal";
+                    break;
+            }
+            connection.query(
+                "INSERT INTO role SET ?", {
+                    title: title,
+                    salary: salary,
+                    department_id: department_id,
+                },
+                err => {
+                    if (err) throw err;
+                    connection.query(
+                        "INSERT INTO department SET ?", {
+                            department: department
+                        },
+                        err => {
+                            if (err) throw err;
+                            connection.query(
+                                "INSERT INTO employee SET ?", {
+                                    first_name: answer.first_name,
+                                    last_name: answer.last_name,
+                                    role_id: role_id,
+                                    manager_id: manager_id
+                                },
+                                err => {
+                                    if (err) throw err;
+                                    appStart();
+                                }
+                            );
+                        }
+                    );
+                }
+            );
+        })
 }
