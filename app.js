@@ -1,7 +1,7 @@
 const mysql = require("mysql");
 const inquirer = require("inquirer");
 const columnify = require('columnify');
-const employeeNames = ["None", "John Doe", "Mike Chan", "Ashley Rodriguez", "Kevin Tupik", "Malia Brown", "Sarah Lourd", "Tom Allen", "Tammer Galal"];
+
 
 const connection = mysql.createConnection({
     host: "localhost",
@@ -85,7 +85,7 @@ const appStart = () => {
 }
 
 const showAllEmployees = () => {
-    console.log(employeeNames);
+    // console.log(employeeNames);
     connection.query("SELECT employee.id, first_name, last_name, title, department, salary, manager_id FROM employee INNER JOIN role ON employee.role_id = role.id INNER JOIN department ON role.department_id = department.id", function (err, res) {
         for (let i = 0; i < res.length; i++) {
             for (let j = 0; j < res.length; j++) {
@@ -217,6 +217,15 @@ const addEmployee = () => {
     let department_id;
     let manager_id;
     let role_id;
+    let employeeNames = ['None'];
+
+    connection.query("SELECT * FROM employee", function (err, res) {
+        if (err) throw err;
+        for (let i = 0; i < res.length; i++) {
+            employeeNames[i] = `${res[i].first_name} ${res[i].last_name}`;
+        }
+        console.log(employeeNames);
+    })
 
     inquirer.prompt([{
             name: "first_name",
@@ -247,18 +256,18 @@ const addEmployee = () => {
             choices: employeeNames
         }])
         .then(answer => {
-            employeeNames.push(answer.first_name + " " + answer.last_name);
-            role_id = employeeNames.length++;
+
+            role_id = employeeNames.length + 1;
+            employeeNames[role_id] = `${answer.first_name} ${answer.last_name}`;
 
             for (let i = 0; i < employeeNames.length; i++) {
                 if (employeeNames[i] === answer.manager) {
-                    manager_id = i;
+                    manager_id = i + 1;
                 }
                 if (employeeNames[i] === "None") {
                     manager_id = null;
                 }
             }
-
 
             switch (answer.role) {
                 case "Sales Lead":
@@ -345,7 +354,12 @@ const addEmployee = () => {
 const removeEmployee = () => {
     connection.query("SELECT * FROM employee", function (err, res) {
         if (err) throw err;
-
+        const employeeNames = res.map(employee => {
+            return {
+                name: `${employee.first_name} ${employee.last_name}`,
+                value: employee.id
+            }
+        })
         inquirer.prompt({
             name: "employee",
             type: "list",
@@ -355,16 +369,13 @@ const removeEmployee = () => {
             if (answer.employee === "None") {
                 appStart();
             } else {
-                for (let i = 0; i < res.length; i++) {
-                    if ((answer.employee).split(" ").shift() === res[i].first_name && (answer.employee).split(" ").pop() === res[i].last_name) {
-                        connection.query(
-                            "DELETE FROM employee WHERE id =" + res[i].id,
-                            function (err, res) {
-                                if (err) throw err;
-                            }
-                        )
+                connection.query(
+                    "DELETE FROM employee WHERE id = ?",
+                    answer.employee,
+                    function (err, res) {
+                        if (err) throw err;
                     }
-                }
+                )
                 appStart();
             }
         })
