@@ -217,13 +217,14 @@ const addEmployee = () => {
     let department_id;
     let manager_id;
     let role_id;
-    let employeeNames = ['None'];
+    let employeeNames = [];
 
     connection.query("SELECT * FROM employee", function (err, res) {
         if (err) throw err;
         for (let i = 0; i < res.length; i++) {
             employeeNames[i] = `${res[i].first_name} ${res[i].last_name}`;
         }
+        employeeNames.push('None');
         console.log(employeeNames);
     })
 
@@ -257,15 +258,16 @@ const addEmployee = () => {
         }])
         .then(answer => {
 
-            role_id = employeeNames.length + 1;
+            role_id = employeeNames.length;
             employeeNames[role_id] = `${answer.first_name} ${answer.last_name}`;
 
             for (let i = 0; i < employeeNames.length; i++) {
-                if (employeeNames[i] === answer.manager) {
+                if (employeeNames[i] === answer.manager && employeeNames[i] !== "None") {
                     manager_id = i + 1;
-                }
-                if (employeeNames[i] === "None") {
+                    break;
+                } else if (answer.manager === "None") {
                     manager_id = null;
+                    break;
                 }
             }
 
