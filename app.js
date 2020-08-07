@@ -1,7 +1,39 @@
 const mysql = require("mysql");
 const inquirer = require("inquirer");
 const columnify = require('columnify');
-
+let listOfAvailableRoles = [{
+    title: "Sales Lead",
+    salary: 100000,
+    department_id: 1
+}, {
+    title: "Salesperson",
+    salary: 80000,
+    department_id: 1
+}, {
+    title: "Lead Engineer",
+    salary: 150000,
+    department_id: 2
+}, {
+    title: "Software Engineer",
+    salary: 120000,
+    department_id: 2
+}, {
+    title: "Head of Accounting",
+    salary: 180000,
+    department_id: 3
+}, {
+    title: "Accountant",
+    salary: 125000,
+    department_id: 3
+}, {
+    title: "Leagl Team Lead",
+    salary: 250000,
+    department_id: 4
+}, {
+    title: "Lawyer",
+    salary: 190000,
+    department_id: 4
+}];
 
 const connection = mysql.createConnection({
     host: "localhost",
@@ -214,65 +246,6 @@ const showAllEmployeesByManager = () => {
 
 }
 
-
-
-// let managerNames = [];
-// let managerIds = [];
-// let managerNames2 = [];
-// let managerIds2 = [];
-// let manager_id;
-// connection.query("SELECT * FROM employee", function (err, res) {
-//     if (err) throw err;
-
-// for (let i = 0; i < res.length; i++) {
-//     for (let j = 0; j < res.length; j++) {
-//         if (res[i].id === res[j].manager_id && res[i].manager_id != null) {
-//             managerNames[i] = `${res[i].first_name} ${res[i].last_name}`;
-//             managerIds[i] = res[i].id;
-//         }
-//     }
-// }
-//     connection.query("SELECT * FROM employee where manager_id is null", function (err, res) {
-
-//         for (let i = 0; i < res.length; i++) {
-//             managerNames2[i] = `${res[i].first_name} ${res[i].last_name}`;
-//             managerIds2[i] = res[i].id;
-//         }
-//         let combinedManagerNames = managerNames.concat(managerNames2);
-//         let combinedManagerIds = managerIds.concat(managerIds2);
-// inquirer
-//     .prompt({
-//         name: "manager",
-//         type: "rawlist",
-//         message: "Choose the manager you want to see the employees under",
-//         choices: combinedManagerNames
-//     }).then(answer => {
-//                 for (let i = 0; i < combinedManagerNames.length; i++) {
-//                     if (answer.manager === combinedManagerNames[i]) {
-//                         manager_id = combinedManagerIds[i];
-//                     }
-//                 }
-//                 connection.query("select first_name, last_name from employee where manager_id =" + manager_id, function (err, res) {
-//                     if (err) throw err;
-
-//                     console.log("-----------------------------------");
-//                     console.log(columnify(res, {
-//                         minWidth: 15,
-//                         config: {
-//                             id: {
-//                                 maxWidth: 3
-//                             }
-//                         }
-//                     }));
-//                     console.log("-----------------------------------");
-//                     appStart();
-//                 })
-//             })
-//     })
-// });
-
-// };
-
 const addEmployee = () => {
     let title;
     let salary;
@@ -319,7 +292,6 @@ const addEmployee = () => {
         }])
         .then(answer => {
 
-            role_id = employeeNames.length;
             employeeNames[role_id] = `${answer.first_name} ${answer.last_name}`;
 
             for (let i = 0; i < employeeNames.length; i++) {
@@ -337,6 +309,7 @@ const addEmployee = () => {
                     title = "Sales Lead";
                     salary = 100000;
                     department_id = 1;
+                    role_id = 1;
                     department = "Sales";
                     break;
 
@@ -344,6 +317,7 @@ const addEmployee = () => {
                     title = "Salesperson";
                     salary = 80000;
                     department_id = 1;
+                    role_id = 2;
                     department = "Sales";
                     break;
 
@@ -351,6 +325,7 @@ const addEmployee = () => {
                     title = "Lead Engineer";
                     salary = 150000;
                     department_id = 2;
+                    role_id = 3;
                     department = "Engineering";
                     break;
 
@@ -358,6 +333,7 @@ const addEmployee = () => {
                     title = "Software Engineer";
                     salary = 120000;
                     department_id = 2;
+                    role_id = 4;
                     department = "Engineering";
                     break;
 
@@ -365,6 +341,7 @@ const addEmployee = () => {
                     title = "Account Manager";
                     salary = 140000;
                     department_id = 3;
+                    role_id = 5;
                     department = "Finance";
                     break;
 
@@ -372,6 +349,7 @@ const addEmployee = () => {
                     title = "Accountant";
                     salary = 125000;
                     department_id = 3;
+                    role_id = 6;
                     department = "Finance";
                     break;
 
@@ -379,6 +357,7 @@ const addEmployee = () => {
                     title = "Legal Team Lead";
                     salary = 250000;
                     department_id = 4;
+                    role_id = 7;
                     department = "Legal";
                     break;
 
@@ -386,6 +365,7 @@ const addEmployee = () => {
                     title = "Lawyer";
                     salary = 190000;
                     department_id = 4;
+                    role_id = 8;
                     department = "Legal";
                     break;
             }
@@ -441,6 +421,75 @@ const removeEmployee = () => {
                 )
                 appStart();
             }
+        })
+    })
+}
+
+const updateEmployeeRole = () => {
+    let listOfEmployees = [];
+    let listOfCurrentRoles = [];
+
+    listOfAvailableRoles.forEach(role => {
+        listOfCurrentRoles.push(role.title);
+    })
+
+    connection.query("SELECT id, first_name, last_name FROM employee", function (err, res) {
+        if (err) throw err;
+        res.forEach(employee => {
+            listOfEmployees.push({
+                fullName: `${employee.first_name} ${employee.last_name}`,
+                id: employee.id
+            });
+        });
+        let employeesFullNames = [];
+        listOfEmployees.forEach(employee => {
+            employeesFullNames.push(employee.fullName);
+        })
+        const questions = [{
+            name: "employee",
+            type: "list",
+            message: "Choose the employee you want to update his/her role",
+            choices: employeesFullNames
+        }, {
+            name: "role",
+            type: "rawlist",
+            message: "Choose a role to assign to the employee",
+            choices: listOfCurrentRoles
+        }];
+
+        inquirer.prompt(questions).then(answer => {
+            let salaryForTheRole;
+            let departemntIdForTheRole;
+            let id;
+
+            listOfEmployees.forEach(employee => {
+                if (answer.employee === employee.fullName) {
+                    id = employee.id;
+                }
+            })
+
+            listOfAvailableRoles.forEach(role => {
+                if (answer.role === role.title) {
+                    salaryForTheRole = role.salary;
+                    departemntIdForTheRole = role.department_id;
+                }
+            })
+            console.log(salaryForTheRole);
+            console.log(departemntIdForTheRole);
+            connection.query(
+                "UPDATE role SET ? WHERE ?",
+                [{
+                        title: answer.role,
+                        salary: salaryForTheRole,
+                        department_id: departemntIdForTheRole
+                    },
+                    {
+                        id: id
+                    }
+                ],
+                appStart()
+            )
+
         })
     })
 }
