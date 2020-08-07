@@ -4,35 +4,43 @@ const columnify = require('columnify');
 let listOfAvailableRoles = [{
     title: "Sales Lead",
     salary: 100000,
-    department_id: 1
+    department_id: 1,
+    role_id: 1
 }, {
     title: "Salesperson",
     salary: 80000,
-    department_id: 1
+    department_id: 1,
+    role_id: 2
 }, {
     title: "Lead Engineer",
     salary: 150000,
-    department_id: 2
+    department_id: 2,
+    role_id: 3
 }, {
     title: "Software Engineer",
     salary: 120000,
-    department_id: 2
+    department_id: 2,
+    role_id: 4
 }, {
     title: "Head of Accounting",
     salary: 180000,
-    department_id: 3
+    department_id: 3,
+    role_id: 5
 }, {
     title: "Accountant",
     salary: 125000,
-    department_id: 3
+    department_id: 3,
+    role_id: 6
 }, {
     title: "Leagl Team Lead",
     salary: 250000,
-    department_id: 4
+    department_id: 4,
+    role_id: 7
 }, {
     title: "Lawyer",
     salary: 190000,
-    department_id: 4
+    department_id: 4,
+    role_id: 8
 }];
 
 const connection = mysql.createConnection({
@@ -247,12 +255,15 @@ const showAllEmployeesByManager = () => {
 }
 
 const addEmployee = () => {
-    let title;
-    let salary;
     let department_id;
     let manager_id;
     let role_id;
     let employeeNames = [];
+    let availableRoleTitles = [];
+
+    listOfAvailableRoles.forEach(role => {
+        availableRoleTitles.push(role.title);
+    })
 
     connection.query("SELECT * FROM employee", function (err, res) {
         if (err) throw err;
@@ -274,16 +285,7 @@ const addEmployee = () => {
             name: "role",
             type: "list",
             message: "What is the employee's role?",
-            choices: [
-                "Sales Lead",
-                "Salesperson",
-                "Lead Engineer",
-                "Software Engineer",
-                "Account Manager",
-                "Accountant",
-                "Legal Team Lead",
-                "Lawyer"
-            ]
+            choices: availableRoleTitles
         }, {
             name: "manager",
             type: "list",
@@ -304,93 +306,43 @@ const addEmployee = () => {
                 }
             }
 
-            switch (answer.role) {
-                case "Sales Lead":
-                    title = "Sales Lead";
-                    salary = 100000;
-                    department_id = 1;
-                    role_id = 1;
+            listOfAvailableRoles.forEach(role => {
+                if (answer.role === role.title) {
+                    role_id = role.role_id;
+                }
+            })
+
+            switch (department_id) {
+                case 1:
                     department = "Sales";
                     break;
 
-                case "Salesperson":
-                    title = "Salesperson";
-                    salary = 80000;
-                    department_id = 1;
-                    role_id = 2;
-                    department = "Sales";
-                    break;
-
-                case "Lead Engineer":
-                    title = "Lead Engineer";
-                    salary = 150000;
-                    department_id = 2;
-                    role_id = 3;
+                case 2:
                     department = "Engineering";
                     break;
 
-                case "Software Engineer":
-                    title = "Software Engineer";
-                    salary = 120000;
-                    department_id = 2;
-                    role_id = 4;
-                    department = "Engineering";
-                    break;
-
-                case "Account Manager":
-                    title = "Account Manager";
-                    salary = 140000;
-                    department_id = 3;
-                    role_id = 5;
+                case 3:
                     department = "Finance";
                     break;
 
-                case "Accountant":
-                    title = "Accountant";
-                    salary = 125000;
-                    department_id = 3;
-                    role_id = 6;
-                    department = "Finance";
-                    break;
-
-                case "Legal Team Lead":
-                    title = "Legal Team Lead";
-                    salary = 250000;
-                    department_id = 4;
-                    role_id = 7;
-                    department = "Legal";
-                    break;
-
-                case "Lawyer":
-                    title = "Lawyer";
-                    salary = 190000;
-                    department_id = 4;
-                    role_id = 8;
+                case 4:
                     department = "Legal";
                     break;
             }
+
             connection.query(
-                "INSERT INTO role SET ?", {
-                    title: title,
-                    salary: salary,
-                    department_id: department_id,
+                "INSERT INTO employee SET ?", {
+                    first_name: answer.first_name,
+                    last_name: answer.last_name,
+                    role_id: role_id,
+                    manager_id: manager_id
                 },
                 err => {
                     if (err) throw err;
-                    connection.query(
-                        "INSERT INTO employee SET ?", {
-                            first_name: answer.first_name,
-                            last_name: answer.last_name,
-                            role_id: role_id,
-                            manager_id: manager_id
-                        },
-                        err => {
-                            if (err) throw err;
-                            appStart();
-                        }
-                    );
+                    appStart();
                 }
             );
+
         })
 }
 
@@ -474,8 +426,7 @@ const updateEmployeeRole = () => {
                     departemntIdForTheRole = role.department_id;
                 }
             })
-            console.log(salaryForTheRole);
-            console.log(departemntIdForTheRole);
+
             connection.query(
                 "UPDATE role SET ? WHERE ?",
                 [{
