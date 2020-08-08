@@ -16,7 +16,7 @@
 
   ## Installation
 
-  In order to install the dependencies required for this app, you have to run npm install in your command line before using the app. You can then start the app by typing node app.js into your console. 
+  In order to install the dependencies required for this app, you have to run `npm install` in your command line before using the app. You can then start the app by typing `node app.js` into your console. 
 
   ## Usage
 
