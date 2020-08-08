@@ -249,11 +249,13 @@ const addEmployee = () => {
     inquirer.prompt([{
             name: "first_name",
             type: "input",
-            message: "What is the employee's first name?"
+            message: "What is the employee's first name?",
+            validate: name => /^[a-zA-Z ]+$/.test(name)
         }, {
             name: "last_name",
             type: "input",
-            message: "What is the employee's last name?"
+            message: "What is the employee's last name?",
+            validate: name => /^[a-zA-Z ]+$/.test(name)
         }, {
             name: "role",
             type: "list",
@@ -505,11 +507,13 @@ const addRole = () => {
     const questions = [{
         name: "roleTitle",
         type: "input",
-        message: "Plese enter the title for the new role you want to add"
+        message: "Plese enter the title for the new role you want to add",
+        validate: name => /^[a-zA-Z ]+$/.test(name)
     }, {
         name: "salary",
         type: "input",
         message: "Please enter the amount of salary considered for that role",
+        validate: number => /^\d+$/.test(number)
     }, {
         name: "departmentID",
         type: "rawlist",
