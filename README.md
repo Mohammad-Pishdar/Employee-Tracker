@@ -20,9 +20,7 @@
 
   ## Usage
 
-  The app let's the user to interact with a database of employees from their company, allowing them to view a comltete list of employees with data realted to their role in the compnay, the amount of salary they recieve, the department they work for and the manager they work under. The user can also view a list of all the employees working under a certain manager, a list of all the employees working in a certain department and the total salary budget of the department of choice. They can also add new employees to the database, remove employees from the database, update existing emplyees roles, update existing employees managers, view all the avilable roles in the company, add new roles to be later used and remove roles that are not currently in use by employees. 
-
-  ![animated gif to show how note taker app works](https://drive.google.com/file/d/1hmZ664vGQ2R3mS3nWJ3NM98-Ujs5N_wS/view)
+  The app let's the user to interact with a database of employees from their company, allowing them to view a comltete list of employees with data realted to their role in the compnay, the amount of salary they recieve, the department they work for and the manager they work under. The user can also view a list of all the employees working under a certain manager, a list of all the employees working in a certain department and the total salary budget of the department of choice. They can also add new employees to the database, remove employees from the database, update existing emplyees roles, update existing employees managers, view all the avilable roles in the company, add new roles to be later used and remove roles that are not currently in use by employees. You can watch a video walkthrough of how to use this app [here](https://drive.google.com/file/d/1hmZ664vGQ2R3mS3nWJ3NM98-Ujs5N_wS/view).
 
   ## License
 
