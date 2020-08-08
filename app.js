@@ -23,17 +23,6 @@ const appStart = () => {
 
         listOfAvailableRoles = res.slice();
 
-
-        // res.forEach(role => {
-        //     if (listOfAvailableRoles.length < res.length) {
-        //         listOfAvailableRoles.push({
-        //             title: role.title,
-        //             salary: role.salary,
-        //             department_id: role.department_id,
-        //             role_id: role.id
-        //         })
-        //     }
-        // })
     })
 
     inquirer
@@ -44,6 +33,7 @@ const appStart = () => {
             choices: [
                 "View All Employees",
                 "View All Employees By Department",
+                "View Total Utilised Budget of a Department",
                 "View All Employees By Manager",
                 "Add Employee",
                 "Remove Employee",
@@ -94,6 +84,10 @@ const appStart = () => {
 
                 case "Remove Role":
                     removeRole();
+                    break;
+
+                case "View Total Utilised Budget of a Department":
+                    viewTotalUtilisedBudgetOfDepartment();
                     break;
 
                 case "exit":
@@ -616,4 +610,38 @@ const removeRole = () => {
         })
 
     })
+}
+
+const viewTotalUtilisedBudgetOfDepartment = () => {
+    inquirer
+        .prompt({
+            name: "department",
+            type: "list",
+            message: "Choose the department you want to see the total salary budget for:",
+            choices: [
+                "Sales",
+                "Engineering",
+                "Finance",
+                "Legal"
+            ]
+        }).then(answer => {
+            connection.query("select department, sum(salary) from employee inner join role on employee.role_id = role.id inner join department on role.department_id = department.id where department =" + "'" + answer.department + "'",
+                function (err, res) {
+                    if (err) throw err;
+
+                    console.log("-----------------------------------");
+                    console.log(columnify(res, {
+                        minWidth: 15,
+                        config: {
+                            id: {
+                                maxWidth: 3
+                            }
+                        }
+                    }));
+                    console.log("-----------------------------------");
+                    appStart();
+
+                });
+        })
+
 }
