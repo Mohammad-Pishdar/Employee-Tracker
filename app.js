@@ -431,7 +431,7 @@ const updateEmployeeManager = () => {
                 id: employee.id
             });
         });
-        console.log(listOfEmployeeObjects);
+
         const questions = [{
             name: "employee",
             type: "list",
