@@ -158,8 +158,6 @@ const showAllEmployees = () => {
         }));
         console.log("-----------------------------------");
         appStart();
-        // })
-
     });
 
 }
@@ -501,4 +499,31 @@ const updateEmployeeManager = () => {
             )
         })
     })
+}
+
+const viewAllRoles = () => {
+
+    let avilabaleRolesIDsAndTitles = [];
+
+    listOfAvailableRoles.forEach(role => {
+        avilabaleRolesIDsAndTitles.push({
+            ID: role.role_id,
+            Title: role.title
+        });
+    })
+
+    console.log("-----------------------------------");
+    console.log(columnify(avilabaleRolesIDsAndTitles, {
+        minWidth: 15,
+        config: {
+            id: {
+                maxWidth: 3
+            },
+            title: {
+                minWidth: 20
+            }
+        }
+    }));
+    console.log("-----------------------------------");
+    appStart();
 }
