@@ -13,26 +13,29 @@ const connection = mysql.createConnection({
 
 connection.connect(err => {
     if (err) throw err;
-    getThelistOfAvailableRoles();
     appStart();
-
 });
 
-const getThelistOfAvailableRoles = () => {
+const appStart = () => {
+
     connection.query("SELECT * FROM role", function (err, res) {
         if (err) throw err;
-        res.forEach(role => {
-            listOfAvailableRoles.push({
-                title: role.title,
-                salary: role.salary,
-                department_id: role.department_id,
-                role_id: role.id
-            })
-        })
-    })
-}
 
-const appStart = () => {
+        listOfAvailableRoles = res.slice();
+
+
+        // res.forEach(role => {
+        //     if (listOfAvailableRoles.length < res.length) {
+        //         listOfAvailableRoles.push({
+        //             title: role.title,
+        //             salary: role.salary,
+        //             department_id: role.department_id,
+        //             role_id: role.id
+        //         })
+        //     }
+        // })
+    })
+
     inquirer
         .prompt({
             name: "action",
@@ -101,7 +104,7 @@ const appStart = () => {
 }
 
 const showAllEmployees = () => {
-    // console.log(employeeNames);
+
     connection.query("SELECT employee.id, first_name, last_name, title, department, salary, manager_id FROM employee INNER JOIN role ON employee.role_id = role.id INNER JOIN department ON role.department_id = department.id", function (err, res) {
         for (let i = 0; i < res.length; i++) {
             for (let j = 0; j < res.length; j++) {
@@ -193,6 +196,8 @@ const showAllEmployeesByManager = () => {
                 }
             }
         }
+
+        //Removing duplicates
         managersNames = [...new Set(managersNames)];
         managerIds = [...new Set(managerIds)];
 
@@ -282,7 +287,7 @@ const addEmployee = () => {
 
             listOfAvailableRoles.forEach(role => {
                 if (answer.role === role.title) {
-                    role_id = role.role_id;
+                    role_id = role.id;
                 }
             })
 
@@ -384,32 +389,29 @@ const updateEmployeeRole = () => {
         }];
 
         inquirer.prompt(questions).then(answer => {
-            let salaryForTheRole;
-            let departemntIdForTheRole;
-            let id;
 
-            listOfEmployees.forEach(employee => {
-                if (answer.employee === employee.fullName) {
-                    id = employee.id;
-                }
-            })
+            let roleID;
+            let employeeID;
 
             listOfAvailableRoles.forEach(role => {
                 if (answer.role === role.title) {
-                    salaryForTheRole = role.salary;
-                    departemntIdForTheRole = role.department_id;
+                    roleID = role.id;
+                }
+            })
+
+            listOfEmployees.forEach(employee => {
+                if (answer.employee === employee.fullName) {
+                    employeeID = employee.id;
                 }
             })
 
             connection.query(
-                "UPDATE role SET ? WHERE ?",
+                "UPDATE employee SET ? WHERE ?",
                 [{
-                        title: answer.role,
-                        salary: salaryForTheRole,
-                        department_id: departemntIdForTheRole
+                        role_id: roleID
                     },
                     {
-                        id: id
+                        id: employeeID
                     }
                 ],
                 appStart()
@@ -483,7 +485,7 @@ const viewAllRoles = () => {
 
     listOfAvailableRoles.forEach(role => {
         avilabaleRolesIDsAndTitles.push({
-            ID: role.role_id,
+            ID: role.id,
             Title: role.title
         });
     })
@@ -547,7 +549,7 @@ const addRole = () => {
             title: answer.roleTitle,
             salary: answer.salary,
             department_id: departmentID,
-            role_id: listOfAvailableRoles.length + 1
+            id: listOfAvailableRoles.length + 1
         })
 
         let sql = `INSERT INTO role 
@@ -563,5 +565,55 @@ const addRole = () => {
             if (err) throw err;
             appStart();
         })
+    })
+}
+
+const removeRole = () => {
+
+    let avilabaleRoleTitles = [];
+    let roleID;
+
+    listOfAvailableRoles.forEach(role => {
+        avilabaleRoleTitles.push(role.title);
+    })
+
+    const questions = [{
+        name: "role",
+        type: "rawlist",
+        message: "Which one of these roles you want to remove from the database?",
+        choices: avilabaleRoleTitles
+    }]
+
+    inquirer.prompt(questions).then(answer => {
+        listOfAvailableRoles.forEach(role => {
+            if (answer.role === role.title) {
+                roleID = role.id;
+            }
+        })
+        connection.query("select first_name, last_name, title, department from employee inner join role on employee.role_id = role.id inner join department on role.department_id = department.id where role_id = ?", [roleID], function (err, res) {
+            if (err) throw err;
+
+            //Checking to see if the returned response is empty or not. If it's not empty, so the role is in use and cannot be deleted. Otherwise, the role will be deleted.
+            if (res.length) {
+                console.log("***************************************************");
+                console.log("You cannot remove the roles as long as they are assigned to employees. Please update the role of employees and try again.");
+                console.log("***************************************************");
+                appStart();
+            } else {
+                listOfAvailableRoles.forEach(role => {
+                    if (answer.role === role.title) {
+                        connection.query(
+                            "DELETE FROM role WHERE title = ?",
+                            answer.role,
+                            function (err, res) {
+                                if (err) throw err;
+                                appStart();
+                            }
+                        )
+                    }
+                })
+            }
+        })
+
     })
 }
