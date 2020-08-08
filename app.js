@@ -444,3 +444,61 @@ const updateEmployeeRole = () => {
         })
     })
 }
+
+const updateEmployeeManager = () => {
+    let listOfEmployeesFullNames = [];
+    let listOfEmployeeObjects = [];
+
+    connection.query("SELECT id, first_name, last_name, manager_id FROM employee", function (err, res) {
+        if (err) throw err;
+        res.forEach(employee => {
+            listOfEmployeesFullNames.push(
+                `${employee.first_name} ${employee.last_name}`);
+            listOfEmployeeObjects.push({
+                fullName: `${employee.first_name} ${employee.last_name}`,
+                id: employee.id
+            });
+        });
+        console.log(listOfEmployeeObjects);
+        const questions = [{
+            name: "employee",
+            type: "list",
+            message: "Choose the employee you want to update the manager for",
+            choices: listOfEmployeesFullNames
+        }, {
+            name: "manager",
+            type: "rawlist",
+            message: "Choose a manager to assign to your chosen employee",
+            choices: listOfEmployeesFullNames
+        }];
+
+        inquirer.prompt(questions).then(answer => {
+            let employeeID;
+            let managerID;
+
+            listOfEmployeeObjects.forEach(employee => {
+                if (answer.employee === employee.fullName) {
+                    employeeID = employee.id;
+                }
+            })
+
+            listOfEmployeeObjects.forEach(employee => {
+                if (answer.manager === employee.fullName) {
+                    managerID = employee.id;
+                }
+            })
+
+            connection.query(
+                "UPDATE employee SET ? WHERE ?",
+                [{
+                        manager_id: managerID,
+                    },
+                    {
+                        id: employeeID
+                    }
+                ],
+                appStart()
+            )
+        })
+    })
+}
