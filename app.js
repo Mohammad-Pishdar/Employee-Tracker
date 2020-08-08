@@ -1,47 +1,7 @@
 const mysql = require("mysql");
 const inquirer = require("inquirer");
 const columnify = require('columnify');
-let listOfAvailableRoles = [{
-    title: "Sales Lead",
-    salary: 100000,
-    department_id: 1,
-    role_id: 1
-}, {
-    title: "Salesperson",
-    salary: 80000,
-    department_id: 1,
-    role_id: 2
-}, {
-    title: "Lead Engineer",
-    salary: 150000,
-    department_id: 2,
-    role_id: 3
-}, {
-    title: "Software Engineer",
-    salary: 120000,
-    department_id: 2,
-    role_id: 4
-}, {
-    title: "Head of Accounting",
-    salary: 180000,
-    department_id: 3,
-    role_id: 5
-}, {
-    title: "Accountant",
-    salary: 125000,
-    department_id: 3,
-    role_id: 6
-}, {
-    title: "Leagl Team Lead",
-    salary: 250000,
-    department_id: 4,
-    role_id: 7
-}, {
-    title: "Lawyer",
-    salary: 190000,
-    department_id: 4,
-    role_id: 8
-}];
+let listOfAvailableRoles = [];
 
 const connection = mysql.createConnection({
     host: "localhost",
@@ -53,8 +13,24 @@ const connection = mysql.createConnection({
 
 connection.connect(err => {
     if (err) throw err;
+    getThelistOfAvailableRoles();
     appStart();
+
 });
+
+const getThelistOfAvailableRoles = () => {
+    connection.query("SELECT * FROM role", function (err, res) {
+        if (err) throw err;
+        res.forEach(role => {
+            listOfAvailableRoles.push({
+                title: role.title,
+                salary: role.salary,
+                department_id: role.department_id,
+                role_id: role.id
+            })
+        })
+    })
+}
 
 const appStart = () => {
     inquirer
@@ -526,4 +502,66 @@ const viewAllRoles = () => {
     }));
     console.log("-----------------------------------");
     appStart();
+}
+
+const addRole = () => {
+
+    const questions = [{
+        name: "roleTitle",
+        type: "input",
+        message: "Plese enter the title for the new role you want to add"
+    }, {
+        name: "salary",
+        type: "input",
+        message: "Please enter the amount of salary considered for that role",
+    }, {
+        name: "departmentID",
+        type: "rawlist",
+        message: "What department this role belongs to?",
+        choices: ["Sales", "Engineering", "Finance", "Legal"]
+    }];
+
+    inquirer.prompt(questions).then(answer => {
+
+        let departmentID;
+
+        switch (answer.departmentID) {
+            case "Sales":
+                departmentID = 1;
+                break;
+
+            case "Engineering":
+                departmentID = 2;
+                break;
+
+            case "Finance":
+                departmentID = 3;
+                break;
+
+            case "Legal":
+                departmentID = 4;
+                break;
+        }
+
+        listOfAvailableRoles.push({
+            title: answer.roleTitle,
+            salary: answer.salary,
+            department_id: departmentID,
+            role_id: listOfAvailableRoles.length + 1
+        })
+
+        let sql = `INSERT INTO role 
+            (
+                title, salary, department_id
+            )
+            VALUES
+            (
+                ?, ?, ?
+            )`;
+
+        connection.query(sql, [answer.roleTitle, answer.salary, departmentID], function (err, res) {
+            if (err) throw err;
+            appStart();
+        })
+    })
 }
