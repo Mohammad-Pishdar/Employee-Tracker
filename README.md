@@ -16,7 +16,7 @@
 
   ## Installation
 
-  In order to install the dependencies required for this app, you have to run `npm install` in your command line before using the app. You can then start the app by typing `node app.js` into your console. 
+  In order to install the dependencies required for this app, you have to run `npm install` in your command line before using the app. You can then start the app by typing `node app.js` into your console. You will also need to open the provided `schema.sql` file in your mySQL workbench and add the database in there to your list of available databses.
 
   ## Usage
 
